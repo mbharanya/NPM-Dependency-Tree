@@ -3,7 +3,7 @@ import { Controller, Middleware, Get, Put, Post, Delete } from '@overnightjs/cor
 import { Logger } from '@overnightjs/logger';
 
 @Controller('api')
-export class IndexController {
+export class ApiController {
     @Get(':msg')
     getMessage(req: Request, res: Response) {
         Logger.Info(req.params.msg);

@@ -13,13 +13,23 @@ the entire set of dependencies for the package.
 Options:
 - Redis, or other http-level caches
 - In-Memory, fast easy, clears when server dies
+    - Create db with dependencies, update if version changes -> also update all dependencies
 
+### Dependency tree
+Tree will only be built in frontend, api provides packagename -> dependency list
+
+### Security
+- Should have some basic validation on package name, to not pass it directly to npmjs
+
+### Testing
+I opted for mostly integration tests, as the API is the best way to test the functionality directly. It actually spins up the same express server to run the tests on.
 
 ## Installation
 ### Building
 ### Running tests
-
 ## Deploying, running
 
 Basic setup by:
 https://levelup.gitconnected.com/setup-express-with-typescript-in-3-easy-steps-484772062e01
+
+http://json2ts.com/
