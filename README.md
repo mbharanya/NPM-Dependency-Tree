@@ -8,6 +8,13 @@ the entire set of dependencies for the package.
 4. Account for asynchronous fetching of dependencies as you see fit.
 5. Consider caching relevant data so that repeated requests resolve with minimum latency.
 
+## Considerations
+### Caching
+Options:
+- Redis, or other http-level caches
+- In-Memory, fast easy, clears when server dies
+
+
 ## Installation
 ### Building
 ### Running tests

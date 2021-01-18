@@ -4,12 +4,14 @@
         "strict": true,
         "baseUrl": "./",
         "outDir": "build",
-        "target": "es6",
+        "target": "esnext",
         "moduleResolution": "node",
+        "esModuleInterop": true,
         "importHelpers": true,
         "experimentalDecorators": true,
         "types": [
-            "node"
+            "node",
+            "jest"
         ],
         "typeRoots": [
             "node_modules/@types"

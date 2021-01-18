@@ -4,9 +4,8 @@ import { Logger } from '@overnightjs/logger';
 
 @Controller('api')
 export class IndexController {
-
     @Get(':msg')
-    private getMessage(req: Request, res: Response) {
+    getMessage(req: Request, res: Response) {
         Logger.Info(req.params.msg);
         res.status(200).json({
             message: req.params.msg,
@@ -14,7 +13,7 @@ export class IndexController {
     }
 
     @Put(':msg')
-    private putMessage(req: Request, res: Response) {
+    putMessage(req: Request, res: Response) {
         Logger.Info(req.params.msg);
         return res.status(400).json({
             error: req.params.msg,
@@ -22,7 +21,7 @@ export class IndexController {
     }
 
     @Post(':msg')
-    private postMessage(req: Request, res: Response) {
+    postMessage(req: Request, res: Response) {
         Logger.Info(req.params.msg);
         return res.status(400).json({
             error: req.params.msg,
@@ -30,7 +29,7 @@ export class IndexController {
     }
 
     @Delete(':msg')
-    private delMessage(req: Request, res: Response) {
+    delMessage(req: Request, res: Response) {
         try {
             throw new Error(req.params.msg);
         } catch (err) {
