@@ -24,6 +24,10 @@ Tree will only be built in frontend, api provides packagename -> dependency list
 ### Testing
 I opted for mostly integration tests, as the API is the best way to test the functionality directly. It actually spins up the same express server to run the tests on.
 
+### Versions
+Versions will always evaluate to their minimum viable version, as this is the only way to guarantee that a possible version can be fetched (without querying npmjs multiple times per request)
+Versions like "*" will evaluate to "latest"
+
 ## Installation
 ### Building
 ### Running tests

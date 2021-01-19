@@ -1,4 +1,4 @@
-import { Npm } from "../../src/controller/npm/Npm"
+import { Npm, PackageDependencies } from "../../src/controller/npm/Npm"
 import { Fixtures } from "../Fixtures"
 
 
@@ -8,9 +8,21 @@ const npm = new Npm()
 test("It should request data from npmjs",
     async () => {
         const dependencies = await npm.getDependencies("express")
-        expect(dependencies.dependencies.length).toBeGreaterThan(0)
-        expect(dependencies.devDependencies.length).toBeGreaterThan(0)
-        expect(dependencies.dependencies).toContainEqual(Fixtures.expressDependencyExample)
-        expect(dependencies.devDependencies).toContainEqual(Fixtures.expressDevDependencyExample)
+        isValidPackageDependencies(dependencies)
     })
 
+
+test("It should be able to handle vague versions",
+    async () => {
+        isValidPackageDependencies(await npm.getDependencies("express", "*"))
+        isValidPackageDependencies(await npm.getDependencies("express", ">4.17.0"))
+        isValidPackageDependencies(await npm.getDependencies("express", "~4.17.0"))
+    })
+
+
+function isValidPackageDependencies(response: PackageDependencies) {
+    expect(response.dependencies.length).toBeGreaterThan(0)
+    expect(response.devDependencies.length).toBeGreaterThan(0)
+    expect(response.dependencies).toContainEqual(Fixtures.expressDependencyExample)
+    expect(response.devDependencies).toContainEqual(Fixtures.expressDevDependencyExample)
+}

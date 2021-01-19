@@ -1,6 +1,6 @@
 import fetch from 'node-fetch'
 import { Logger } from '@overnightjs/logger';
-
+import * as semver from 'semver';
 
 //TODO: could be extracted to config file
 const API_URL = "https://registry.npmjs.org/:packageName/:version"
@@ -14,14 +14,18 @@ interface Dependency {
     version: string;
 }
 
-interface PackageDependencies {
+export interface PackageDependencies {
     dependencies: Dependency[];
     devDependencies: Dependency[];
 }
 
 export class Npm {
+    private static readonly FALLBACK_VERSION = "latest";
+
     async getDependencies(packageName: string, version: string = 'latest'): Promise<PackageDependencies> {
-        const url = API_URL.replace(':packageName', packageName).replace(':version', version)
+        const minimumVersion = this.getSanitizedVersion(version);
+
+        const url = API_URL.replace(':packageName', packageName).replace(':version', minimumVersion || 'latest')
         Logger.Info(`Fetching dependencies from npmjs for ${url}`)
         const response = await fetch(url)
         const json = await response.json()
@@ -37,6 +41,16 @@ export class Npm {
             dependencies: this.npmFormatToDependencies(dependencies),
             devDependencies: this.npmFormatToDependencies(devDependencies)
         };
+    }
+
+    private getSanitizedVersion(version: string) {
+        switch (version) {
+            case "*":
+            case Npm.FALLBACK_VERSION:
+                return Npm.FALLBACK_VERSION;
+            default:
+                return semver.minVersion(version)?.version || Npm.FALLBACK_VERSION;
+        }
     }
 
     private npmFormatToDependencies(deps: NpmJsDependencies): Dependency[] {
