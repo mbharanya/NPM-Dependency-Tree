@@ -2,6 +2,7 @@ document.addEventListener('submit', async function (event) {
     // Prevent form from submitting to the server
     event.preventDefault();
     errorElement.style.display = 'none';
+    tumbleElement.style.display = 'none';
 
     // if we end up having more than one form, this needs to change...
     const data = new FormData(event.target);
@@ -14,23 +15,31 @@ document.addEventListener('submit', async function (event) {
 const errorElement = document.getElementById("error")
 const tumbleElement = document.getElementById("tumble")
 
+
 async function getDependencies(packageName, version) {
     const response = await fetch(`/api/dependencies/${encodeURIComponent(packageName)}/${version ? encodeURIComponent(version) : "latest"}`)
     const responseJson = await response.json();
 
     if (response.status >= 200 && response.status < 300) {
-        if (responseJson.dependencies.length === 0 || responseJson.devDependencies.length === 0) {
-            tumbleElement.style.display = "block"
-            tumbleElement.innerHTML = `<p>It seems this package does not have any dependencies</p>
-            <img src="img/tumbleweed.webp">`
-        }
+        showTumbleWeed(packageName, responseJson);
         return responseJson
     } else {
         errorElement.innerHTML = "❗ " + responseJson.error
         errorElement.style.display = "block"
     }
     return { dependencies: [], devDependencies: [] }
+
 }
+
+function showTumbleWeed(packageName, responseJson) {
+    const topLevelPackageName = document.querySelector("input[name='package-name']").value;
+    if (packageName == topLevelPackageName && responseJson.dependencies.length === 0 && responseJson.devDependencies.length === 0) {
+        tumbleElement.style.display = "block";
+        tumbleElement.innerHTML = `<p>It seems this package does not have any dependencies</p>
+        <img src="img/tumbleweed.webp">`;
+    }
+}
+
 
 function updateTree(dependencyResponse) {
     const treeUl = document.querySelector("#myUL")
