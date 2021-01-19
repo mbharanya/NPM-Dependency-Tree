@@ -20,23 +20,20 @@ export class ApiController {
             const valid = isValidNpmName(packageName);
             // need to do strict checking, returns truthy error strings
             if (valid === true) {
-                const cacheKey = packageName + '/' + version;
-                this.redisClient.client.get(cacheKey, async (err, cacheDependencies) => {
-                    if (err) throw err;
-
-                    if (!cacheDependencies) {
-                        try {
-                            const dependencies = await this.npm.getDependencies(packageName, version)
-                            this.redisClient.client.setex(cacheKey, 600, JSON.stringify(dependencies));
-                            this.cacheChildren(dependencies)
-                            res.status(200).json(dependencies);
-                        } catch (err) {
-                            res.status(404).json({ error: err.message });
-                        }
-                    } else {
-                        res.status(200).json(JSON.parse(cacheDependencies));
+                const cachedDependencies = await this.redisClient.getDependency({ name: packageName, version: version })
+                if (!cachedDependencies) {
+                    try {
+                        const dependencies = await this.npm.getDependencies(packageName, version)
+                        this.redisClient.cacheDependency({ name: packageName, version: version }, dependencies)
+                        this.cacheChildren(dependencies)
+                        res.status(200).json(dependencies);
+                    } catch (err) {
+                        res.status(404).json({ error: err.message });
                     }
-                })
+
+                } else {
+                    res.status(200).json(JSON.parse(cachedDependencies));
+                }
             } else {
                 res.status(400).json({ error: `Illegal package name ${packageName}: ${valid}` });
             }
@@ -50,16 +47,11 @@ export class ApiController {
     private async cacheChildren(packageDependencies: PackageDependencies) {
         packageDependencies.dependencies.forEach(async (p) => {
             const cacheKey = p.name + '/' + p.version;
-            const cached = await new Promise((resolve, reject) => this.redisClient.client.get(cacheKey, (err, res) => {
-                if (err) {
-                    reject(err);
-                }
-                resolve(res)
-            }))
-            if (!cached){
+            const cached = await this.redisClient.getDependency(p)
+            if (!cached) {
                 const deps = await this.npm.getDependencies(p.name, p.version)
                 this.redisClient.client.setex(cacheKey, 600, JSON.stringify(deps));
-            }            
+            }
         })
     }
 

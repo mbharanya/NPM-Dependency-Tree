@@ -37,5 +37,3 @@ docker run -p 127.0.0.1:6379:6379/tcp --name redis redis
 
 Basic setup by:
 https://levelup.gitconnected.com/setup-express-with-typescript-in-3-easy-steps-484772062e01
-
-http://json2ts.com/

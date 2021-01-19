@@ -9,7 +9,7 @@ const API_URL = BASE_API_URL + "/:version"
 interface NpmJsDependencies {
     [packageName: string]: string;
 }
-interface Dependency {
+export interface Dependency {
     name: string;
     version: string;
 }
