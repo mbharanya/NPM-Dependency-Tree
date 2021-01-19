@@ -8,14 +8,16 @@ import isValidNpmName from 'is-valid-npm-name';
 export class ApiController {
     private npm = new Npm()
 
-    @Get(':packageName')
+    @Get(':packageName/:version')
     async getMessage(req: Request, res: Response) {
         try {
             const packageName = req.params.packageName.trim()
+            //TODO: validate version
+            const version = req.params.version.trim()
             const valid = isValidNpmName(packageName);
             // need to do strict checking, returns truthy error strings
             if (valid === true) {
-                const dependencies = await this.npm.getDependencies(packageName)
+                const dependencies = await this.npm.getDependencies(packageName, version)
                 res.status(200).json(dependencies);
             } else {
                 res.status(400).json({ error: `Illegal package name ${packageName}: ${valid}` });

@@ -13,6 +13,30 @@
     <form name="search-package">
         <input type="text" required name="package-name" placeholder="🕵️‍♀️Input package name" value="express"></input>
         <input type="submit" value="Search">
+        <div id="tree">
+            <ul id="myUL">
+                <li><span class="caret">Beverages</span>
+                    <ul class="nested">
+                        <li>Water</li>
+                        <li>Coffee</li>
+                        <li><span class="caret">Tea</span>
+                            <ul class="nested">
+                                <li>Black Tea</li>
+                                <li>White Tea</li>
+                                <li><span class="caret">Green Tea</span>
+                                    <ul class="nested">
+                                        <li>Sencha</li>
+                                        <li>Gyokuro</li>
+                                        <li>Matcha</li>
+                                        <li>Pi Lo Chun</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
     </form>
     <script src="js/app.js"></script>
 </body>
