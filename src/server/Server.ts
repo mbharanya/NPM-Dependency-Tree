@@ -3,10 +3,12 @@ import * as controllers from '../controller';
 import { Server } from '@overnightjs/core';
 import { Logger } from '@overnightjs/logger';
 import { Controller } from '@overnightjs/core/lib/decorators/types';
+import express from 'express';
+import path from 'path';
 
 class DefaultServer extends Server {
 
-    private readonly SERVER_STARTED = 'Example server started on port: ';
+    private readonly SERVER_STARTED = 'Server started on port: ';
 
     constructor() {
         super(true);
@@ -27,13 +29,18 @@ class DefaultServer extends Server {
     }
 
     public start(port: number): void {
+        const dir = path.join(__dirname, '../../public/');
+        // Set the static and views directory
+        this.app.set('views',  dir);
+        this.app.use(express.static(dir));
+        // Serve front-end content
         this.app.get('*', (req, res) => {
-            res.send(this.SERVER_STARTED + port);
+            res.sendFile('index.html', {root: dir});
         });
+
         this.app.listen(port, () => {
             Logger.Info(this.SERVER_STARTED + port)
-            Logger.Imp(this.SERVER_STARTED + port);
-        });
+         });
     }
 }
 

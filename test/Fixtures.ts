@@ -13,5 +13,6 @@ export class Fixtures {
     }
 
     static expressDependencyExample = { name: "cookie", version: "0.4.0" }
+    static expressDevDependencyExample = { name: "supertest", version: "3.3.0" }
 }
 
