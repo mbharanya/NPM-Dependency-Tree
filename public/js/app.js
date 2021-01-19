@@ -26,6 +26,9 @@ function updateTree(dependencyResponse) {
     dependencyResponse.dependencies.map(dep => {
         treeUl.innerHTML += getDependencyDomItem(dep)
     })
+    dependencyResponse.devDependencies.map(dep => {
+        treeUl.innerHTML += getDependencyDomItem(dep, true)
+    })
     addCaretClickHandler()
 }
 
@@ -38,7 +41,7 @@ function addCaretClickHandler() {
             const childDependencies = await getDependencies(name, version)
             const parent = this.parentElement
 
-            if (parent && childDependencies.dependencies.length > 0 || childDependencies.devDependencies.length > 0) {
+            if (childDependencies.dependencies.length > 0 || childDependencies.devDependencies.length > 0) {
                 parent.innerHTML += `<ul class="nested">
                     ${childDependencies?.dependencies.map(getDependencyDomItem).join("\n")}
                     ${childDependencies?.devDependencies.map(d => getDependencyDomItem(d, true)).join("\n")}
