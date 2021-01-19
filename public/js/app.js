@@ -12,12 +12,18 @@ document.addEventListener('submit', async function (event) {
 });
 
 const errorElement = document.getElementById("error")
+const tumbleElement = document.getElementById("tumble")
 
 async function getDependencies(packageName, version) {
     const response = await fetch(`/api/dependencies/${encodeURIComponent(packageName)}/${version ? encodeURIComponent(version) : "latest"}`)
     const responseJson = await response.json();
 
     if (response.status >= 200 && response.status < 300) {
+        if (responseJson.dependencies.length === 0 || responseJson.devDependencies.length === 0) {
+            tumbleElement.style.display = "block"
+            tumbleElement.innerHTML = `<p>It seems this package does not have any dependencies</p>
+            <img src="img/tumbleweed.webp">`
+        }
         return responseJson
     } else {
         errorElement.innerHTML = "❗ " + responseJson.error

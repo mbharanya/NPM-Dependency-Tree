@@ -61,3 +61,7 @@ div#error{
     color: white;
     margin: 5px;
 }
+
+div#tumble{
+    display: none;
+}

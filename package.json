@@ -9,7 +9,7 @@
     "build:watch": "rm -rf ./build/ && tsc -w",
     "test": "jest",
     "docker": "rm -rf ./build/ && tsc && docker build -t mbharanya/npm-dependency-tree:latest .",
-    "docker:publish": "docker push mbharanya/npm-dependency-tree:latest"
+    "docker:publish": "npm run docker && docker push mbharanya/npm-dependency-tree:latest"
   },
   "author": "Milan Bharanya",
   "license": "ISC",
