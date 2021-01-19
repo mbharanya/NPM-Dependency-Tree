@@ -49,3 +49,7 @@ ul, #myUL {
 .active {
     display: block;
 }
+
+.dev-dependency{
+    color: green;
+}

@@ -45,24 +45,29 @@ function addCaretClickHandler() {
             const version = dependency.split(":")[1]
             const childDependencies = await getDependencies(name, version)
 
-            const parent = this.parentElement
+            if (childDependencies.dependencies.length > 0 || childDependencies.devDependencies.length > 0) {
+                const parent = this.parentElement
 
-            parent.innerHTML += `<ul class="nested">
-            ${childDependencies?.dependencies.map(getDependencyDomItem).join("\n")}
-            </ul>`
+                parent.innerHTML += `<ul class="nested">
+                ${childDependencies?.dependencies.map(getDependencyDomItem).join("\n")}
+                ${childDependencies?.devDependencies.map(d => getDependencyDomItem(d, true)).join("\n")}
+                </ul>`
 
-            parent.querySelector(".nested").classList.toggle("active");
-            this.classList.toggle("caret-down");
-            addCaretClickHandler()
+                parent.querySelector(".nested").classList.toggle("active");
+                addCaretClickHandler()
+                this.classList.toggle("caret-down");
+            }
         });
     }
 }
 
-function getDependencyDomItem(dependency) {
+function getDependencyDomItem(dependency, isDev = false) {
     return `
     <li>
         <span class="caret" data-dependency="${dependency.name}:${dependency.version}">
-            <span class="dependency-name">${dependency.name}</span> - <span class="dependency-version">${dependency.version}</span>
+            <span class="${isDev ? "dev-dependency" :""}">
+                <span class="dependency-name">${dependency.name}</span> - <span class="dependency-version">${dependency.version}</span>
+            </span>
         </span>
     </li>
     `
