@@ -3,10 +3,13 @@ import { Controller, Middleware, Get, Put, Post, Delete } from '@overnightjs/cor
 import { Logger } from '@overnightjs/logger';
 import { Npm } from './npm/Npm';
 import isValidNpmName from 'is-valid-npm-name';
+import { Redis } from './cache/Redis';
 
 @Controller('api/dependencies')
 export class ApiController {
     private npm = new Npm()
+    //TODO: use env
+    private redisClient = new Redis(6379)
 
     @Get(':packageName/:version')
     async getMessage(req: Request, res: Response) {
@@ -17,8 +20,18 @@ export class ApiController {
             const valid = isValidNpmName(packageName);
             // need to do strict checking, returns truthy error strings
             if (valid === true) {
-                const dependencies = await this.npm.getDependencies(packageName, version)
-                res.status(200).json(dependencies);
+                const cacheKey = packageName + '/' + version;
+                this.redisClient.client.get(cacheKey, async (err, cacheDependencies) => {
+                    if (err) throw err;
+
+                    if (!cacheDependencies) {
+                        const dependencies = await this.npm.getDependencies(packageName, version)
+                        this.redisClient.client.setex(cacheKey, 600, JSON.stringify(dependencies));
+                        res.status(200).json(dependencies);
+                    }else{
+                        res.status(200).json(JSON.parse(cacheDependencies));
+                    }
+                })
             } else {
                 res.status(400).json({ error: `Illegal package name ${packageName}: ${valid}` });
             }
@@ -29,39 +42,4 @@ export class ApiController {
         }
     }
 
-    // @Get(':msg')
-    // getMessage(req: Request, res: Response) {
-    //     Logger.Info(req.params.msg);
-    //     res.status(200).json({
-    //         message: req.params.msg,
-    //     });
-    // }
-
-    // @Put(':msg')
-    // putMessage(req: Request, res: Response) {
-    //     Logger.Info(req.params.msg);
-    //     return res.status(400).json({
-    //         error: req.params.msg,
-    //     });
-    // }
-
-    // @Post(':msg')
-    // postMessage(req: Request, res: Response) {
-    //     Logger.Info(req.params.msg);
-    //     return res.status(400).json({
-    //         error: req.params.msg,
-    //     });
-    // }
-
-    // @Delete(':msg')
-    // delMessage(req: Request, res: Response) {
-    //     try {
-    //         throw new Error(req.params.msg);
-    //     } catch (err) {
-    //         Logger.Err(err, true);
-    //         return res.status(400).json({
-    //             error: req.params.msg,
-    //         });
-    //     }
-    // }
 }

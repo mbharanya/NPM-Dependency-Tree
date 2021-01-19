@@ -6,7 +6,7 @@ document.addEventListener('submit', async function (event) {
     const data = new FormData(event.target);
     const formData = Object.fromEntries(data.entries());
 
-    const dependencyResponse = await getDependencies(formData["package-name"])
+    const dependencyResponse = await getDependencies(formData["package-name"], formData["package-version"])
     updateTree(dependencyResponse)
 });
 
@@ -36,23 +36,26 @@ function addCaretClickHandler() {
     const itemList = document.getElementsByClassName("caret");
     for (let i = 0; i < itemList.length; i++) {
         itemList[i].addEventListener("click", async function (event) {
+            event.stopPropagation();
+
             const name = event.target.dataset.dependencyName
             const version = event.target.dataset.dependencyVersion
             const childDependencies = await getDependencies(name, version)
             const parent = this.parentElement
+            if (parent) {
+                if (childDependencies.dependencies.length > 0 || childDependencies.devDependencies.length > 0) {
+                    parent.innerHTML += `<ul class="nested">
+                        ${childDependencies?.dependencies.map(getDependencyDomItem).join("\n")}
+                        ${childDependencies?.devDependencies.map(d => getDependencyDomItem(d, true)).join("\n")}
+                    </ul>`
 
-            if (childDependencies.dependencies.length > 0 || childDependencies.devDependencies.length > 0) {
-                parent.innerHTML += `<ul class="nested">
-                    ${childDependencies?.dependencies.map(getDependencyDomItem).join("\n")}
-                    ${childDependencies?.devDependencies.map(d => getDependencyDomItem(d, true)).join("\n")}
-                </ul>`
-
-                addCaretClickHandler()
-                this.classList.toggle("caret-down");
-            } else {
-                parent.innerHTML += `<ul class="nested"><li>No more dependencies  ¯\_(ツ)_/¯</li></ul>`
+                    addCaretClickHandler()
+                    this.classList.toggle("caret-down");
+                } else {
+                    parent.innerHTML += `<ul class="nested"><li>No more dependencies  ¯\_(ツ)_/¯</li></ul>`
+                }
+                parent.querySelector(".nested").classList.toggle("active");
             }
-            parent.querySelector(".nested").classList.toggle("active");
         });
     }
 }

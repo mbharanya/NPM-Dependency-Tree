@@ -33,7 +33,7 @@ Versions like "*" will evaluate to "latest"
 ### Running tests
 ## Deploying, running
 
-docker run --name npm-dependency-tree-db -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD -d postgres
+docker run -p 127.0.0.1:6379:6379/tcp --name redis redis
 
 Basic setup by:
 https://levelup.gitconnected.com/setup-express-with-typescript-in-3-easy-steps-484772062e01
