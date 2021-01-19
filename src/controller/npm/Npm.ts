@@ -14,19 +14,32 @@ interface Dependency {
     version: string;
 }
 
+interface PackageDependencies {
+    dependencies: Dependency[];
+    devDependencies: Dependency[];
+}
+
 export class Npm {
-    async getDependencies(packageName: string, version: string = 'latest'): Promise<Dependency[]> {
+    async getDependencies(packageName: string, version: string = 'latest'): Promise<PackageDependencies> {
         Logger.Info(`Fetching dependencies from npmjs for ${packageName}`)
         const response = await fetch(API_URL.replace(':packageName', packageName).replace(':version', version))
         const json = await response.json()
         const dependencies: NpmJsDependencies = json.dependencies
+        const devDependencies: NpmJsDependencies = json.devDependencies
 
-        if (!dependencies){
+        if (!dependencies) {
             throw new Error(`Package ${packageName}:${version} not found`)
         }
 
-        return Object.keys(dependencies).map((key) => {
-            return { name: key, version: dependencies[key] }
-        });
+        return {
+            dependencies: this.npmFormatToDependencies(dependencies),
+            devDependencies: this.npmFormatToDependencies(devDependencies)
+        };
+    }
+
+    private npmFormatToDependencies(deps: NpmJsDependencies): Dependency[] {
+        return Object.keys(deps).map((key) => {
+            return { name: key, version: deps[key] }
+        })
     }
 }

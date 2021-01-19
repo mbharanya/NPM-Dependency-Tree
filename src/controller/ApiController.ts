@@ -13,10 +13,11 @@ export class ApiController {
         try {
             const packageName = req.params.packageName.trim()
             const valid = isValidNpmName(packageName);
+            // need to do strict checking, returns truthy error strings
             if (valid === true) {
                 const dependencies = await this.npm.getDependencies(packageName)
                 res.status(200).json(dependencies);
-            }else{
+            } else {
                 res.status(400).json({ error: `Illegal package name ${packageName}: ${valid}` });
             }
         } catch (err) {
