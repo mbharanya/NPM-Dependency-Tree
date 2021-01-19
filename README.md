@@ -29,6 +29,8 @@ I opted for mostly integration tests, as the API is the best way to test the fun
 ### Running tests
 ## Deploying, running
 
+docker run --name npm-dependency-tree-db -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD -d postgres
+
 Basic setup by:
 https://levelup.gitconnected.com/setup-express-with-typescript-in-3-easy-steps-484772062e01
 
