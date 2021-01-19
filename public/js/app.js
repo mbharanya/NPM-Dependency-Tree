@@ -1,6 +1,7 @@
 document.addEventListener('submit', async function (event) {
     // Prevent form from submitting to the server
     event.preventDefault();
+    errorElement.style.display = 'none';
 
     // if we end up having more than one form, this needs to change...
     const data = new FormData(event.target);
@@ -10,12 +11,19 @@ document.addEventListener('submit', async function (event) {
     updateTree(dependencyResponse)
 });
 
+const errorElement = document.getElementById("error")
+
 async function getDependencies(packageName, version) {
     const response = await fetch(`/api/dependencies/${encodeURIComponent(packageName)}/${version ? encodeURIComponent(version) : "latest"}`)
-    //TODO: handle errors
-    const dependencyResponse = await response.json();
-    console.log(dependencyResponse)
-    return dependencyResponse
+    const responseJson = await response.json();
+
+    if (response.status >= 200 && response.status < 300) {
+        return responseJson
+    } else {
+        errorElement.innerHTML = "❗ " + responseJson.error
+        errorElement.style.display = "block"
+    }
+    return { dependencies: [], devDependencies: [] }
 }
 
 function updateTree(dependencyResponse) {
@@ -34,29 +42,33 @@ function updateTree(dependencyResponse) {
 
 function addCaretClickHandler() {
     const itemList = document.getElementsByClassName("caret");
-    for (let i = 0; i < itemList.length; i++) {
-        itemList[i].addEventListener("click", async function (event) {
-            event.stopPropagation();
+    [...itemList].forEach(element => {
+        element.removeEventListener("click", clickEventListener)
+        element.addEventListener("click", clickEventListener)
+    }
+    );
+}
 
-            const name = event.target.dataset.dependencyName
-            const version = event.target.dataset.dependencyVersion
-            const childDependencies = await getDependencies(name, version)
-            const parent = this.parentElement
-            if (parent) {
-                if (childDependencies.dependencies.length > 0 || childDependencies.devDependencies.length > 0) {
-                    parent.innerHTML += `<ul class="nested">
-                        ${childDependencies?.dependencies.map(getDependencyDomItem).join("\n")}
-                        ${childDependencies?.devDependencies.map(d => getDependencyDomItem(d, true)).join("\n")}
-                    </ul>`
+async function clickEventListener(event) {
+    const name = event.currentTarget.dataset.dependencyName;
+    const version = event.currentTarget.dataset.dependencyVersion;
+    const parent = this.parentElement;
 
-                    addCaretClickHandler()
-                    this.classList.toggle("caret-down");
-                } else {
-                    parent.innerHTML += `<ul class="nested"><li>No more dependencies  ¯\_(ツ)_/¯</li></ul>`
-                }
-                parent.querySelector(".nested").classList.toggle("active");
-            }
-        });
+    const childDependencies = await getDependencies(name, version);
+
+    if (parent) {
+        if (childDependencies.dependencies?.length > 0 || childDependencies.devDependencies?.length > 0) {
+            parent.innerHTML += `<ul class="nested">
+                    ${childDependencies?.dependencies.map(getDependencyDomItem).join("\n")}
+                    ${childDependencies?.devDependencies.map(d => getDependencyDomItem(d, true)).join("\n")}
+                </ul>`;
+
+            this.classList.toggle("caret-down");
+            addCaretClickHandler();
+        } else {
+            parent.innerHTML += `<ul class="nested"><li>No more dependencies  ¯\\_(ツ)_/¯</li></ul>`;
+        }
+        parent.querySelector(".nested").classList.toggle("active");
     }
 }
 

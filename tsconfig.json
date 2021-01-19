@@ -9,6 +9,7 @@
         "esModuleInterop": true,
         "importHelpers": true,
         "experimentalDecorators": true,
+        "noImplicitAny": true,
         "types": [
             "node",
             "jest"

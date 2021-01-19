@@ -7,7 +7,9 @@
     "start": "node build/app.js",
     "dev": "nodemon --config \"./util/nodemon.json\"/",
     "build:watch": "rm -rf ./build/ && tsc -w",
-    "test": "jest"
+    "test": "jest",
+    "docker": "rm -rf ./build/ && tsc && docker build -t mbharanya/npm-dependency-tree:latest .",
+    "docker:publish": "docker push mbharanya/npm-dependency-tree:latest"
   },
   "author": "Milan Bharanya",
   "license": "ISC",
@@ -31,6 +33,7 @@
     "@overnightjs/core": "^1.7.5",
     "@overnightjs/logger": "^1.2.0",
     "body-parser": "^1.19.0",
+    "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "is-valid-npm-name": "0.0.5",
     "node-fetch": "^2.6.1",

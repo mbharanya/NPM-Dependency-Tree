@@ -11,9 +11,15 @@
 <body>
     <h1>🌲NPM dependency tree🌲</h1>
     <form name="search-package">
-        <input type="text" required name="package-name" placeholder="🕵️‍♀️Input package name" value="express"></input>
-        <input type="text" required name="package-version" placeholder="version" value="latest">
+        <label>Package name:
+            <input type="text" required name="package-name" placeholder="🕵️‍♀️Input package name"
+                value="express"></input>
+        </label><br>
+        <label>Package version:
+            <input type="text" required name="package-version" placeholder="version" value="latest">
+        </label><br>
         <input type="submit" value="Search">
+        <div id="error"></div>
         <div id="tree">
             <ul id="myUL">
             </ul>

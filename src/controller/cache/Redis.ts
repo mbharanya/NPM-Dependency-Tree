@@ -4,8 +4,8 @@ import { RedisClient } from "redis";
 
 export class Redis {
     client: RedisClient
-    constructor(redisPort: number) {
-        this.client = redis.createClient(redisPort);
+    constructor(host: string, port: number) {
+        this.client = redis.createClient(port, host);
 
         this.client.on("error", (err) => {
             Logger.Err(err)

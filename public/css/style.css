@@ -53,3 +53,11 @@ ul, #myUL {
 .dev-dependency{
     color: green;
 }
+
+div#error{
+    background-color: darkred;
+    display: none;
+    padding: 5px;
+    color: white;
+    margin: 5px;
+}

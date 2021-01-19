@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { Controller, Middleware, Get, Put, Post, Delete } from '@overnightjs/core';
 import { Logger } from '@overnightjs/logger';
-import { Npm } from './npm/Npm';
+import { Npm, PackageDependencies } from './npm/Npm';
 import isValidNpmName from 'is-valid-npm-name';
 import { Redis } from './cache/Redis';
 
@@ -9,7 +9,7 @@ import { Redis } from './cache/Redis';
 export class ApiController {
     private npm = new Npm()
     //TODO: use env
-    private redisClient = new Redis(6379)
+    private redisClient = new Redis(process.env.REDIS_HOST || "redis", parseInt(process.env.REDIS_PORT || "6379"))
 
     @Get(':packageName/:version')
     async getMessage(req: Request, res: Response) {
@@ -25,10 +25,15 @@ export class ApiController {
                     if (err) throw err;
 
                     if (!cacheDependencies) {
-                        const dependencies = await this.npm.getDependencies(packageName, version)
-                        this.redisClient.client.setex(cacheKey, 600, JSON.stringify(dependencies));
-                        res.status(200).json(dependencies);
-                    }else{
+                        try {
+                            const dependencies = await this.npm.getDependencies(packageName, version)
+                            this.redisClient.client.setex(cacheKey, 600, JSON.stringify(dependencies));
+                            this.cacheChildren(dependencies)
+                            res.status(200).json(dependencies);
+                        } catch (err) {
+                            res.status(404).json({ error: err.message });
+                        }
+                    } else {
                         res.status(200).json(JSON.parse(cacheDependencies));
                     }
                 })
@@ -41,5 +46,22 @@ export class ApiController {
             res.status(404).json({ error: err.message });
         }
     }
+
+    private async cacheChildren(packageDependencies: PackageDependencies) {
+        packageDependencies.dependencies.forEach(async (p) => {
+            const cacheKey = p.name + '/' + p.version;
+            const cached = await new Promise((resolve, reject) => this.redisClient.client.get(cacheKey, (err, res) => {
+                if (err) {
+                    reject(err);
+                }
+                resolve(res)
+            }))
+            if (!cached){
+                const deps = await this.npm.getDependencies(p.name, p.version)
+                this.redisClient.client.setex(cacheKey, 600, JSON.stringify(deps));
+            }            
+        })
+    }
+
 
 }
