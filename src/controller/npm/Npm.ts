@@ -16,9 +16,14 @@ interface Dependency {
 
 export class Npm {
     async getDependencies(packageName: string, version: string = 'latest'): Promise<Dependency[]> {
+        Logger.Info(`Fetching dependencies from npmjs for ${packageName}`)
         const response = await fetch(API_URL.replace(':packageName', packageName).replace(':version', version))
         const json = await response.json()
         const dependencies: NpmJsDependencies = json.dependencies
+
+        if (!dependencies){
+            throw new Error(`Package ${packageName}:${version} not found`)
+        }
 
         return Object.keys(dependencies).map((key) => {
             return { name: key, version: dependencies[key] }
