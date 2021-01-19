@@ -1,0 +1,12 @@
+services:
+  node:
+    image: mbharanya/npm-dependency-tree:latest
+    ports:
+      - "3000:3000"
+    links:
+      - redis
+  redis:
+    image: redis
+    ports:
+      - 6379:6379/tcp
+    restart: unless-stopped
