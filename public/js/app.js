@@ -18,21 +18,25 @@ document.addEventListener('submit', async function (event) {
     updateTree(dependencyResponse)
 });
 
-packageNameInput.addEventListener("blur", event => {
+let lastPackageName;
+
+packageNameInput.addEventListener("focusout", event => {
+    const versionDropdownOptions = document.querySelectorAll("select#version-dropdown option");
+    // const packageName = packageNameInput.value;
+    // if (packageName !== lastPackageName) {
     const defaultOption = document.createElement("option")
     defaultOption.value = "latest"
     defaultOption.text = "latest"
-    for (let i = 0; i < versionDropdown.options.length; i++) {
-        versionDropdown.options[i] = null
-    }
+    versionDropdownOptions.forEach(o => o.remove());
     versionDropdown.options.add(defaultOption)
+    // lastPackageName = packageName
+    // }
 })
 
-let lastPackageName;
 
 document.querySelector("select#version-dropdown").addEventListener("click", async (event) => {
     const packageName = packageNameInput.value;
-    if (packageName !== lastPackageName) {
+    if (packageName !== lastPackageName || document.querySelectorAll("select#version-dropdown option").length <= 1) {
         const response = await fetch(`/api/versions/${encodeURIComponent(packageName)}`)
         const responseJson = await response.json();
         if (response.status >= 200 && response.status < 300) {

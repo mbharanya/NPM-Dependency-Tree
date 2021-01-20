@@ -5,6 +5,7 @@ import { Npm, PackageDependencies } from './npm/Npm';
 import isValidNpmName from 'is-valid-npm-name';
 import { Redis } from './cache/Redis';
 import { IController } from './Controller';
+import { versions } from 'process';
 
 @Controller('api/versions')
 export class VersionsController implements IController {
@@ -18,9 +19,15 @@ export class VersionsController implements IController {
             const valid = isValidNpmName(packageName);
             // need to do strict checking, returns truthy error strings
             if (valid === true) {
-                const versions = await this.npm.getVersions(packageName)
-                console.log(versions)
-                res.status(200).json({ versions: versions })
+                const key = `${packageName}/version`;
+                const cached = await this.redis.get(key)
+                if (!cached) {
+                    const versions = await this.npm.getVersions(packageName)
+                    this.redis.cache(key, JSON.stringify(versions))
+                    res.status(200).json({ versions: versions })
+                } else {
+                    res.status(200).json({ versions: JSON.parse(cached) })
+                }
             } else {
                 res.status(400).json({ error: `Illegal package name ${packageName}: ${valid}` });
             }
