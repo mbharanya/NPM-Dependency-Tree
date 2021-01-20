@@ -1,6 +1,8 @@
 const errorElement = document.getElementById("error")
 const tumbleElement = document.getElementById("tumble")
 const packageNameInput = document.querySelector("input[name='package-name']");
+const versionDropdown = document.querySelector("select#version-dropdown");
+
 
 document.addEventListener('submit', async function (event) {
     // Prevent form from submitting to the server
@@ -16,12 +18,22 @@ document.addEventListener('submit', async function (event) {
     updateTree(dependencyResponse)
 });
 
+packageNameInput.addEventListener("blur", event => {
+    const defaultOption = document.createElement("option")
+    defaultOption.value = "latest"
+    defaultOption.text = "latest"
+    for (let i = 0; i < versionDropdown.options.length; i++) {
+        versionDropdown.options[i] = null
+    }
+    versionDropdown.options.add(defaultOption)
+})
+
 document.querySelector("select#version-dropdown").addEventListener("click", async (event) => {
     const packageName = packageNameInput.value;
     const response = await fetch(`/api/versions/${encodeURIComponent(packageName)}`)
     const responseJson = await response.json();
     if (response.status >= 200 && response.status < 300) {
-        const dropdown = document.querySelector("select#version-dropdown")
+        const dropdown = versionDropdown
         responseJson.versions.map(v => {
             const option = document.createElement("option");
             option.value = v
