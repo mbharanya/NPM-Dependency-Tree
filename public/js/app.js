@@ -3,6 +3,10 @@ const tumbleElement = document.getElementById("tumble")
 const packageNameInput = document.querySelector("input[name='package-name']");
 const versionDropdown = document.querySelector("select#version-dropdown");
 
+window.addEventListener("load", function(){
+    populateVersions(packageNameInput.value)
+})
+
 
 document.addEventListener('submit', async function (event) {
     // Prevent form from submitting to the server
@@ -19,23 +23,28 @@ document.addEventListener('submit', async function (event) {
 });
 
 let lastPackageName;
+let cachedLastPackageName;
 
-packageNameInput.addEventListener("focusout", event => {
-    const versionDropdownOptions = document.querySelectorAll("select#version-dropdown option");
-    // const packageName = packageNameInput.value;
-    // if (packageName !== lastPackageName) {
-    const defaultOption = document.createElement("option")
-    defaultOption.value = "latest"
-    defaultOption.text = "latest"
-    versionDropdownOptions.forEach(o => o.remove());
-    versionDropdown.options.add(defaultOption)
-    // lastPackageName = packageName
-    // }
+
+packageNameInput.addEventListener("keydown", event => {
+    const packageName = event.target.value;
+
+    if (packageName !== cachedLastPackageName) {
+        const dropDown = document.querySelector("select#version-dropdown")
+        dropDown.setAttribute("disabled", "disabled")
+        const versionDropdownOptions = document.querySelectorAll("select#version-dropdown option");
+        const defaultOption = document.createElement("option")
+        defaultOption.value = "latest"
+        defaultOption.text = "latest"
+        versionDropdownOptions.forEach(o => o.remove());
+        versionDropdown.options.add(defaultOption)    
+    }
 })
 
+async function populateVersions(packageName){
+    const dropDown = document.querySelector("select#version-dropdown")
+    dropDown.removeAttribute("disabled", "disabled")
 
-document.querySelector("select#version-dropdown").addEventListener("click", async (event) => {
-    const packageName = packageNameInput.value;
     if (packageName !== lastPackageName || document.querySelectorAll("select#version-dropdown option").length <= 1) {
         const response = await fetch(`/api/versions/${encodeURIComponent(packageName)}`)
         const responseJson = await response.json();
@@ -53,7 +62,7 @@ document.querySelector("select#version-dropdown").addEventListener("click", asyn
         }
         lastPackageName = packageName
     }
-})
+}
 
 async function getDependencies(packageName, version) {
     const response = await fetch(`/api/dependencies/${encodeURIComponent(packageName)}/${version ? encodeURIComponent(version) : "latest"}`)
@@ -61,6 +70,7 @@ async function getDependencies(packageName, version) {
 
     if (response.status >= 200 && response.status < 300) {
         showTumbleWeedIfNecessary(packageName, responseJson);
+        await populateVersions(packageName)
         return responseJson
     } else {
         errorElement.innerHTML = "❗ " + responseJson.error
@@ -97,13 +107,12 @@ function updateTree(dependencyResponse) {
 function addCaretClickHandler() {
     const itemList = document.getElementsByClassName("caret");
     [...itemList].forEach(element => {
-        element.removeEventListener("click", clickEventListener)
-        element.addEventListener("click", clickEventListener)
-    }
-    );
+        element.removeEventListener("click", caretClickEventListener)
+        element.addEventListener("click", caretClickEventListener)
+    });
 }
 
-async function clickEventListener(event) {
+async function caretClickEventListener(event) {
     const name = event.currentTarget.dataset.dependencyName;
     const version = event.currentTarget.dataset.dependencyVersion;
     const parent = this.parentElement;
@@ -112,12 +121,11 @@ async function clickEventListener(event) {
 
     if (parent) {
         if (childDependencies.dependencies?.length > 0 || childDependencies.devDependencies?.length > 0) {
+            this.classList.toggle("caret-down");
             parent.innerHTML += `<ul class="nested">
                     ${childDependencies?.dependencies.map(getDependencyDomItem).join("\n")}
                     ${childDependencies?.devDependencies.map(d => getDependencyDomItem(d, true)).join("\n")}
                 </ul>`;
-
-            this.classList.toggle("caret-down");
             addCaretClickHandler();
         } else {
             parent.innerHTML += `<ul class="nested"><li>No more dependencies  ¯\\_(ツ)_/¯</li></ul>`;

@@ -16,12 +16,13 @@ https://npm.xmb.li
 - ExpressJS webserver
 - overnightjs for annotations
 - Docker for Redis and deployment
+- jest for testing
 ## REST API
 Types:
 ```ts
 interface Dependency {
     name: string;
-    version: string;
+    version: string; 
 }
 
 interface PackageDependencies {
@@ -37,7 +38,7 @@ returns PackageDependencies
 
 # Return all valid versions of given package <package_name>
 /api/versions/<package_name>
-returns string[]
+returns { versions: string[] }
 ```
 
 ## Redis cache architecture

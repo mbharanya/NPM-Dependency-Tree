@@ -16,9 +16,9 @@ export class DependenciesController implements IController {
             const packageName = req.params.packageName.trim()
             //IMPROVE: version could also be validated further
             const version = req.params.version.trim() || Npm.FALLBACK_VERSION
-            const valid = isValidNpmName(packageName);
+            const validOrErrorMessage = isValidNpmName(packageName);
             // need to do strict checking, returns truthy error strings
-            if (valid === true) {
+            if (validOrErrorMessage === true) {
                 const cachedDependencies = await this.redis.getDependency({ name: packageName, version: version })
                 if (!cachedDependencies) {
                     try {
@@ -34,7 +34,7 @@ export class DependenciesController implements IController {
                     res.status(200).json(JSON.parse(cachedDependencies));
                 }
             } else {
-                res.status(400).json({ error: `Illegal package name ${packageName}: ${valid}` });
+                res.status(400).json({ error: `Illegal package name ${packageName}: ${validOrErrorMessage}` });
             }
         } catch (err) {
             // IMPROVE: Log level could be downgraded, depending on how often it occurs

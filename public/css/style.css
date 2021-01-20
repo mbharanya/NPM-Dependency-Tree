@@ -15,15 +15,16 @@ ul, #myUL {
     padding: 0;
 }
 
-/* Style the caret/arrow */
-
 .caret {
     cursor: pointer;
+    -webkit-user-select: none;
+    /* Safari 3.1+ */
+    -moz-user-select: none;
+    /* Firefox 2+ */
+    -ms-user-select: none;
+    /* IE 10+ */
     user-select: none;
-    /* Prevent text selection */
 }
-
-/* Create the caret/arrow with a unicode, and style it */
 
 .caret::before {
     content: "\25B6";
@@ -32,9 +33,11 @@ ul, #myUL {
     margin-right: 6px;
 }
 
-/* Rotate the caret/arrow icon when clicked on (using JavaScript) */
-
 .caret-down::before {
+    -ms-transform: rotate(90deg);
+    /* IE 9 */
+    -webkit-transform: rotate(90deg);
+    /* Safari */
     transform: rotate(90deg);
 }
 
@@ -50,11 +53,11 @@ ul, #myUL {
     display: block;
 }
 
-.dev-dependency{
+.dev-dependency {
     color: green;
 }
 
-div#error{
+div#error {
     background-color: darkred;
     display: none;
     padding: 5px;
@@ -62,6 +65,6 @@ div#error{
     margin: 5px;
 }
 
-div#tumble{
+div#tumble {
     display: none;
 }
