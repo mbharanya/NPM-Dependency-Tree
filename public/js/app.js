@@ -28,21 +28,26 @@ packageNameInput.addEventListener("blur", event => {
     versionDropdown.options.add(defaultOption)
 })
 
+let lastPackageName;
+
 document.querySelector("select#version-dropdown").addEventListener("click", async (event) => {
     const packageName = packageNameInput.value;
-    const response = await fetch(`/api/versions/${encodeURIComponent(packageName)}`)
-    const responseJson = await response.json();
-    if (response.status >= 200 && response.status < 300) {
-        const dropdown = versionDropdown
-        responseJson.versions.map(v => {
-            const option = document.createElement("option");
-            option.value = v
-            option.text = v
-            dropdown.add(option)
-        })
-    } else {
-        errorElement.innerHTML = "❗ " + responseJson.error
-        errorElement.style.display = "block"
+    if (packageName !== lastPackageName) {
+        const response = await fetch(`/api/versions/${encodeURIComponent(packageName)}`)
+        const responseJson = await response.json();
+        if (response.status >= 200 && response.status < 300) {
+            const dropdown = versionDropdown
+            responseJson.versions.sort().map(v => {
+                const option = document.createElement("option");
+                option.value = v
+                option.text = v
+                dropdown.add(option)
+            })
+        } else {
+            errorElement.innerHTML = "❗ " + responseJson.error
+            errorElement.style.display = "block"
+        }
+        lastPackageName = packageName
     }
 })
 
