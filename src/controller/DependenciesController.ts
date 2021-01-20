@@ -6,7 +6,7 @@ import isValidNpmName from 'is-valid-npm-name';
 import { Redis } from './cache/Redis';
 import {IController } from './Controller'
 @Controller('api/dependencies')
-export class ApiController implements IController {
+export class DependenciesController implements IController {
     constructor(private npm: Npm, private redis: Redis){
     }
 
