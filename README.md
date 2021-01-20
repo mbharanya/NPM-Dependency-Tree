@@ -2,7 +2,7 @@
 Watch a live version on my website:  
 https://npm.xmb.li
 
-![](animated.webp)
+![](animated.gif)
 
 ## Features
 - ⚡ Lightning fast caching with redis
