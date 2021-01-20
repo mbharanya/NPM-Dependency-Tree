@@ -8,7 +8,6 @@ import { Redis } from './cache/Redis';
 @Controller('api/dependencies')
 export class ApiController {
     private npm = new Npm()
-    //TODO: use env
     private redisClient = new Redis(process.env.REDIS_HOST || "redis", parseInt(process.env.REDIS_PORT || "6379"))
 
     @Get(':packageName/:version')
@@ -39,6 +38,19 @@ export class ApiController {
             }
         } catch (err) {
             // TODO: Log level could be downgraded, depending on how often it occurs
+            Logger.Warn(`Error fetching dependencies: ${err.message}`)
+            res.status(404).json({ error: err.message });
+        }
+    }
+
+    @Get('random')
+    async getRandom(req: Request, res: Response) {
+        try {
+            const allKeys = await this.redisClient.getAllKeys()
+            const randomCacheKey = allKeys[Math.floor(Math.random() * allKeys.length)]
+            const cachedDependencies = await this.redisClient.get(randomCacheKey)
+            res.status(200).json(cachedDependencies);
+        } catch (err) {
             Logger.Warn(`Error fetching dependencies: ${err.message}`)
             res.status(404).json({ error: err.message });
         }
