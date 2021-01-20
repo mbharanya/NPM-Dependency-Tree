@@ -2,7 +2,7 @@
 Watch a live version on my website:  
 https://npm.xmb.li
 
-![](animated.gif)
+![](animated.webp)
 
 ## Features
 - ⚡ Lightning fast caching with redis
@@ -42,7 +42,7 @@ the entire set of dependencies for the package.
 4. Account for asynchronous fetching of dependencies as you see fit.
 5. Consider caching relevant data so that repeated requests resolve with minimum latency.
 
-## Considerations
+## Pre project considerations
 ### Caching
 Options:
 - Redis, or other in-memory caches
@@ -52,7 +52,7 @@ Options:
 ### Dependency tree
 Tree will only be built in frontend, api provides packageName -> dependency list
 ### Security
-- Should have some basic validation on package name/version, to not pass it directly to npmjs
+Should have some basic validation on package name/version, to not pass it directly to npmjs
 
 ### Testing
 I opted for mostly integration tests, as the API is the best way to test the functionality directly. It actually spins up the same express server to run the tests on.
@@ -95,7 +95,7 @@ npm test
 Use `docker-compose.yml` to deploy it.
 Run
 ```bash
-    docker-compose up
+docker-compose up
 ```
 
 
