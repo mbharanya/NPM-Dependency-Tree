@@ -14,7 +14,7 @@ export class ApiController implements IController {
     async getMessage(req: Request, res: Response) {
         try {
             const packageName = req.params.packageName.trim()
-            //TODO: validate version
+            //IMPROVE: version could also be validated further
             const version = req.params.version.trim() || Npm.FALLBACK_VERSION
             const valid = isValidNpmName(packageName);
             // need to do strict checking, returns truthy error strings

@@ -3,7 +3,7 @@ import { Fixtures } from "../Fixtures"
 
 
 const npm = new Npm()
-//TODO: this test accesses real-life npmjs,could think about mocking it,
+//IMPROVE: this test accesses real-life npmjs,could think about mocking it,
 //      if the CI machines etc don't have access to the internet or the versions change
 test("It should request data from npmjs",
     async () => {
