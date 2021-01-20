@@ -16,7 +16,9 @@
                 value="express"></input>
         </label><br>
         <label>Package version:
-            <input type="text" required name="package-version" placeholder="version" value="latest">
+            <select name="package-version" id="version-dropdown">
+                <option value="latest">latest</option>
+            </select>
         </label><br>
         <input type="submit" value="Search">
         <div><p>ℹ Dev dependencies are colored <span style="color: green">green</span></p></div>

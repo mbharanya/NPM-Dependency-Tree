@@ -4,26 +4,26 @@ import { Logger } from '@overnightjs/logger';
 import { Npm, PackageDependencies } from './npm/Npm';
 import isValidNpmName from 'is-valid-npm-name';
 import { Redis } from './cache/Redis';
-
+import {IController } from './Controller'
 @Controller('api/dependencies')
-export class ApiController {
-    private npm = new Npm()
-    private redisClient = new Redis(process.env.REDIS_HOST || "redis", parseInt(process.env.REDIS_PORT || "6379"))
+export class ApiController implements IController {
+    constructor(private npm: Npm, private redis: Redis){
+    }
 
     @Get(':packageName/:version')
     async getMessage(req: Request, res: Response) {
         try {
             const packageName = req.params.packageName.trim()
             //TODO: validate version
-            const version = req.params.version.trim()
+            const version = req.params.version.trim() || Npm.FALLBACK_VERSION
             const valid = isValidNpmName(packageName);
             // need to do strict checking, returns truthy error strings
             if (valid === true) {
-                const cachedDependencies = await this.redisClient.getDependency({ name: packageName, version: version })
+                const cachedDependencies = await this.redis.getDependency({ name: packageName, version: version })
                 if (!cachedDependencies) {
                     try {
                         const dependencies = await this.npm.getDependencies(packageName, version)
-                        this.redisClient.cacheDependency({ name: packageName, version: version }, dependencies)
+                        this.redis.cacheDependency({ name: packageName, version: version }, dependencies)
                         this.cacheChildren(dependencies)
                         res.status(200).json(dependencies);
                     } catch (err) {
@@ -43,26 +43,13 @@ export class ApiController {
         }
     }
 
-    @Get('random')
-    async getRandom(req: Request, res: Response) {
-        try {
-            const allKeys = await this.redisClient.getAllKeys()
-            const randomCacheKey = allKeys[Math.floor(Math.random() * allKeys.length)]
-            const cachedDependencies = await this.redisClient.get(randomCacheKey)
-            res.status(200).json(cachedDependencies);
-        } catch (err) {
-            Logger.Warn(`Error fetching dependencies: ${err.message}`)
-            res.status(404).json({ error: err.message });
-        }
-    }
-
     private async cacheChildren(packageDependencies: PackageDependencies) {
         packageDependencies.dependencies.forEach(async (p) => {
             const cacheKey = p.name + '/' + p.version;
-            const cached = await this.redisClient.getDependency(p)
+            const cached = await this.redis.getDependency(p)
             if (!cached) {
                 const deps = await this.npm.getDependencies(p.name, p.version)
-                this.redisClient.client.setex(cacheKey, 600, JSON.stringify(deps));
+                this.redis.client.setex(cacheKey, 600, JSON.stringify(deps));
             }
         })
     }

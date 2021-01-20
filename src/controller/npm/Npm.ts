@@ -20,7 +20,7 @@ export interface PackageDependencies {
 }
 
 export class Npm {
-    private static readonly FALLBACK_VERSION = "latest";
+    static readonly FALLBACK_VERSION = "latest";
 
     async getDependencies(packageName: string, version: string = 'latest'): Promise<PackageDependencies> {
         const minimumVersion = await this.getSanitizedVersion(packageName, version);
@@ -47,7 +47,7 @@ export class Npm {
         }
     }
 
-    private async getVersions(packageName: string): Promise<string[]> {
+    async getVersions(packageName: string): Promise<string[]> {
         const response = await fetch(BASE_API_URL.replace(":packageName", packageName))
         if (response.status === 200) {
             const json = await response.json()

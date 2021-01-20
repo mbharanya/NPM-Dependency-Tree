@@ -1,3 +1,7 @@
+const errorElement = document.getElementById("error")
+const tumbleElement = document.getElementById("tumble")
+const packageNameInput = document.querySelector("input[name='package-name']");
+
 document.addEventListener('submit', async function (event) {
     // Prevent form from submitting to the server
     event.preventDefault();
@@ -12,16 +16,30 @@ document.addEventListener('submit', async function (event) {
     updateTree(dependencyResponse)
 });
 
-const errorElement = document.getElementById("error")
-const tumbleElement = document.getElementById("tumble")
-
+document.querySelector("select#version-dropdown").addEventListener("click", async (event) => {
+    const packageName = packageNameInput.value;
+    const response = await fetch(`/api/versions/${encodeURIComponent(packageName)}`)
+    const responseJson = await response.json();
+    if (response.status >= 200 && response.status < 300) {
+        const dropdown = document.querySelector("select#version-dropdown")
+        responseJson.versions.map(v => {
+            const option = document.createElement("option");
+            option.value = v
+            option.text = v
+            dropdown.add(option)
+        })
+    } else {
+        errorElement.innerHTML = "❗ " + responseJson.error
+        errorElement.style.display = "block"
+    }
+})
 
 async function getDependencies(packageName, version) {
     const response = await fetch(`/api/dependencies/${encodeURIComponent(packageName)}/${version ? encodeURIComponent(version) : "latest"}`)
     const responseJson = await response.json();
 
     if (response.status >= 200 && response.status < 300) {
-        showTumbleWeed(packageName, responseJson);
+        showTumbleWeedIfNecessary(packageName, responseJson);
         return responseJson
     } else {
         errorElement.innerHTML = "❗ " + responseJson.error
@@ -31,8 +49,8 @@ async function getDependencies(packageName, version) {
 
 }
 
-function showTumbleWeed(packageName, responseJson) {
-    const topLevelPackageName = document.querySelector("input[name='package-name']").value;
+function showTumbleWeedIfNecessary(packageName, responseJson) {
+    const topLevelPackageName = packageNameInput.value;
     if (packageName == topLevelPackageName && responseJson.dependencies.length === 0 && responseJson.devDependencies.length === 0) {
         tumbleElement.style.display = "block";
         tumbleElement.innerHTML = `<p>It seems this package does not have any dependencies</p>
