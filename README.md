@@ -111,6 +111,7 @@ docker-compose up
 - The validation for package names is quite strict, as I'm using the official requirements for package names. So queries for node packages like 'buffer' will be blocked as well
 - Scalability: 
     - As the API calls are stateless, it would be possible to convert them to run on AWS lambda or other serverless platforms. The only state saved is the cache in Redis, multiple instances could be spun up in different locations
+- The tests currently depend on having an internet connection to connect to npmjs.org, this is suboptimal, mocking the npmjs connection would be one way to solve that. They also require connecting to Redis, optimally it would spin up a mocked version that allows for more thorough testing. I opted to leave these tests in, as I've used them to develop the features.
 
 ## Acknowledgements
 Basic setup by:
