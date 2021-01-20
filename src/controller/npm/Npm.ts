@@ -2,7 +2,7 @@ import fetch from 'node-fetch'
 import { Logger } from '@overnightjs/logger';
 import * as semver from 'semver';
 
-//TODO: could be extracted to config file
+//IMPROVE: could be extracted to config file
 const BASE_API_URL = "https://registry.npmjs.org/:packageName"
 const API_URL = BASE_API_URL + "/:version"
 

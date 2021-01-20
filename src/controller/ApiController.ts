@@ -37,7 +37,7 @@ export class ApiController implements IController {
                 res.status(400).json({ error: `Illegal package name ${packageName}: ${valid}` });
             }
         } catch (err) {
-            // TODO: Log level could be downgraded, depending on how often it occurs
+            // IMPROVE: Log level could be downgraded, depending on how often it occurs
             Logger.Warn(`Error fetching dependencies: ${err.message}`)
             res.status(404).json({ error: err.message });
         }
