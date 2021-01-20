@@ -28,7 +28,7 @@ export class Npm {
             throw new Error(`Invalid version ${version}`);
         }
 
-        const url = API_URL.replace(':packageName', packageName).replace(':version', minimumVersion)
+        const url = API_URL.replace(':packageName', encodeURI(packageName)).replace(':version', encodeURI(minimumVersion))
         Logger.Info(`Fetching dependencies from npmjs for ${url}`)
         const response = await fetch(url)
         const json = await response.json()
