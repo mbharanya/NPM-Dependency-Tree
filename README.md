@@ -40,6 +40,16 @@ returns PackageDependencies
 returns string[]
 ```
 
+## Redis cache architecture
+There are two datasets stored in a redis, with a default TTL of 600 seconds (time of last fetch):
+|Key|Value|
+|---|-----|
+|{package_name}/{version}|json of dependencies and devDependencies|
+|{package_name}\|version|string[] of version numbers|
+
+### Timing attacks
+An attacker could possibly find out which packages have already been queried by checking the response time for api requests.(Checking if it's served by redis or not)
+
 ## Excercise Requirements
 1. Create a working application that, given the name of a published npm package, returns
 the entire set of dependencies for the package.

@@ -19,7 +19,7 @@ export class VersionsController implements IController {
             const valid = isValidNpmName(packageName);
             // need to do strict checking, returns truthy error strings
             if (valid === true) {
-                const key = `${packageName}/version`;
+                const key = `${packageName}|version`;
                 const cached = await this.redis.get(key)
                 if (!cached) {
                     const versions = await this.npm.getVersions(packageName)
