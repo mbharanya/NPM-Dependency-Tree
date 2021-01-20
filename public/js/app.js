@@ -120,8 +120,8 @@ async function caretClickEventListener(event) {
     const childDependencies = await getDependencies(name, version);
 
     if (parent) {
+        this.classList.toggle("caret-down");
         if (childDependencies.dependencies?.length > 0 || childDependencies.devDependencies?.length > 0) {
-            this.classList.toggle("caret-down");
             parent.innerHTML += `<ul class="nested">
                     ${childDependencies?.dependencies.map(getDependencyDomItem).join("\n")}
                     ${childDependencies?.devDependencies.map(d => getDependencyDomItem(d, true)).join("\n")}
