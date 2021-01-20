@@ -9,7 +9,13 @@ https://npm.xmb.li
 - 🌲 Show dev dependencies and normal dependencies in a tree structure, information is fetched asynchronously from the API
 - 💧 Select valid versions from a dropdown
 
-
+## Technologies used
+- Typescript
+- Redis
+- NodeJS
+- ExpressJS webserver
+- overnightjs for annotations
+- Docker for Redis and deployment
 ## REST API
 Types:
 ```ts
@@ -103,6 +109,8 @@ docker-compose up
 - It may be necessary to implement some kind of throttling for the requests sent to npmjs.org, otherwise we could risk being rate limited
 - Redis could also use persistent storage
 - The validation for package names is quite strict, as I'm using the official requirements for package names. So queries for node packages like 'buffer' will be blocked as well
+- Scalability: 
+    - As the API calls are stateless, it would be possible to convert them to run on AWS lambda or other serverless platforms. The only state saved is the cache in Redis, multiple instances could be spun up in different locations
 
 ## Acknowledgements
 Basic setup by:
